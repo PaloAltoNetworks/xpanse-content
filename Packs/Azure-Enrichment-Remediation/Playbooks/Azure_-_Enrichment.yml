@@ -296,7 +296,7 @@ tasks:
       brand: Azure Compute v2
     nexttasks:
       '#none#':
-      - "8"
+      - "15"
     scriptarguments:
       resource_group:
         complex:
@@ -339,10 +339,10 @@ tasks:
     isautoswitchedtoquietmode: false
   "7":
     id: "7"
-    taskid: 7cdb0921-fbed-4c0a-87c9-3d8f0e2f43f9
+    taskid: fdc0936c-9603-4db0-8f5e-f3a0535627e8
     type: title
     task:
-      id: 7cdb0921-fbed-4c0a-87c9-3d8f0e2f43f9
+      id: fdc0936c-9603-4db0-8f5e-f3a0535627e8
       version: -1
       name: Done
       type: title
@@ -355,7 +355,7 @@ tasks:
       {
         "position": {
           "x": -60,
-          "y": 3080
+          "y": 3570
         }
       }
     note: false
@@ -386,7 +386,7 @@ tasks:
       {
         "position": {
           "x": 450,
-          "y": 1470
+          "y": 1960
         }
       }
     note: false
@@ -447,7 +447,7 @@ tasks:
       {
         "position": {
           "x": 450,
-          "y": 1620
+          "y": 2110
         }
       }
     note: false
@@ -482,7 +482,7 @@ tasks:
       {
         "position": {
           "x": 450,
-          "y": 1860
+          "y": 2350
         }
       }
     note: false
@@ -541,7 +541,7 @@ tasks:
       {
         "position": {
           "x": 450,
-          "y": 2050
+          "y": 2540
         }
       }
     note: false
@@ -594,7 +594,7 @@ tasks:
       {
         "position": {
           "x": 450,
-          "y": 2390
+          "y": 2880
         }
       }
     note: false
@@ -631,7 +631,7 @@ tasks:
       {
         "position": {
           "x": 450,
-          "y": 2850
+          "y": 3360
         }
       }
     note: false
@@ -692,7 +692,110 @@ tasks:
       {
         "position": {
           "x": 450,
-          "y": 2580
+          "y": 3070
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "15":
+    id: "15"
+    taskid: a64ea09c-8e0a-4724-81e2-c9a234e8b6b3
+    type: regular
+    task:
+      id: a64ea09c-8e0a-4724-81e2-c9a234e8b6b3
+      version: -1
+      name: Query for management group chain
+      description: Executes a given Azure Resource Graph Query to find management group information.
+      script: Azure Resource Graph|||azure-rg-query
+      type: regular
+      iscommand: true
+      brand: Azure Resource Graph
+    nexttasks:
+      '#none#':
+      - "16"
+    scriptarguments:
+      query:
+        complex:
+          root: inputs.AzureIP
+          transformers:
+          - operator: concat
+            args:
+              prefix:
+                value:
+                  simple: resources | where type == 'microsoft.network/publicipaddresses'| where properties['ipAddress'] == '
+              suffix:
+                value:
+                  simple: ''' | project name, id, tenantId, subscriptionId, resourceGroup | join kind=inner (resourcecontainers | where type == ''microsoft.resources/subscriptions'' | project subscriptionId, subscriptionName=name, properties.managementGroupAncestorsChain) on subscriptionId'
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 450,
+          "y": 1530
+        }
+      }
+    note: false
+    timertriggers: []
+    ignoreworker: false
+    skipunavailable: false
+    quietmode: 0
+    isoversize: false
+    isautoswitchedtoquietmode: false
+  "16":
+    id: "16"
+    taskid: a8b12c71-5ecf-4e1d-879e-f85b74805597
+    type: regular
+    task:
+      id: a8b12c71-5ecf-4e1d-879e-f85b74805597
+      version: -1
+      name: Set asset hierarchy path
+      description: Set a hierarchy path value for an Azure asset.
+      scriptName: Set
+      type: regular
+      iscommand: false
+      brand: ""
+    nexttasks:
+      '#none#':
+      - "8"
+    scriptarguments:
+      key:
+        simple: azureAssetHierarchy
+      value:
+        complex:
+          root: AzureResourceGraph.Query.properties_managementGroupAncestorsChain
+          accessor: displayName
+          transformers:
+          - operator: ReverseList
+          - operator: append
+            args:
+              item:
+                value:
+                  simple: AzureResourceGraph.Query.subscriptionName
+                iscontext: true
+          - operator: append
+            args:
+              item:
+                value:
+                  simple: AzureResourceGraph.Query.resourceGroup
+                iscontext: true
+          - operator: join
+            args:
+              separator:
+                value:
+                  simple: /
+    separatecontext: false
+    continueonerrortype: ""
+    view: |-
+      {
+        "position": {
+          "x": 450,
+          "y": 1730
         }
       }
     note: false
@@ -714,7 +817,7 @@ view: |-
     },
     "paper": {
       "dimensions": {
-        "height": 3105,
+        "height": 3595,
         "width": 890,
         "x": -60,
         "y": 40
@@ -747,5 +850,8 @@ outputs:
   description: Microsoft Graph User objects for found user IDs.
   type: unknown
 fromversion: 6.5.0
+- contextPath: azureAssetHierarchy
+  description: Azure Compute Hierarchy Path.
+  type: unknown
 tests:
 - No tests (auto formatted)
