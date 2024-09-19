@@ -3490,9 +3490,9 @@ def main():  # pragma: no cover
             demisto.updateModuleHealth({'{data_type}Pulled'.format(data_type='assets'): total_assets})
 
             # #elif fetch_stage == 'vulnerabilities':
-            #TODO Dedup this list for efficiency
             if qid_list:
-                vulnerabilities, last_run = fetch_vulnerabilities(client=client, last_run=last_run, qid_list=qid_list)
+                qid_set = set(qid_list)
+                vulnerabilities, last_run = fetch_vulnerabilities(client=client, last_run=last_run, qid_list=qid_set)
                 demisto.debug('sending vulnerabilities to XSIAM.')
                 send_data_to_xsiam(data=vulnerabilities, vendor=VENDOR, product='vulnerabilities', data_type='assets')
                 demisto.setAssetsLastRun(last_run)
