@@ -3489,13 +3489,22 @@ def main():  # pragma: no cover
             demisto.setAssetsLastRun(last_run)
             demisto.updateModuleHealth({'{data_type}Pulled'.format(data_type='assets'): total_assets})
 
-            # #elif fetch_stage == 'vulnerabilities':
-            if qid_list:
-                qid_set = set(qid_list)
-                vulnerabilities, last_run = fetch_vulnerabilities(client=client, last_run=last_run, qid_list=qid_set)
-                demisto.debug('sending vulnerabilities to XSIAM.')
-                send_data_to_xsiam(data=vulnerabilities, vendor=VENDOR, product='vulnerabilities', data_type='assets')
-                demisto.setAssetsLastRun(last_run)
+            # if qid_list:
+            #     qid_set = set(qid_list)
+            #     #vulnerabilities, last_run = fetch_vulnerabilities(client=client, last_run=last_run, qid_list=qid_set)
+            #     demisto.debug('sending vulnerabilities to XSIAM. short')
+            #     send_data_to_xsiam(data=vulnerabilities, vendor=VENDOR, product='vulnerabilities', data_type='assets',
+            #                         snapshot_id="1727111700000", items_count=len(vulnerabilities))
+            #     #demisto.setAssetsLastRun(last_run)
+            
+            # elif fetch_stage == 'vulnerabilities':
+            vulnerabilities2, last_run2 = fetch_vulnerabilities(client=client, last_run=last_run, qid_list=['11','38863','82003','106164','92094','38913','38919','38902','38896','27394','38901','38947','38628','38794','38170','38173','38601'])
+            vulnerabilities, last_run3 = fetch_vulnerabilities(client=client, last_run=last_run)
+            demisto.debug('sending vulnerabilities to XSIAM. long')
+            all_vulns = vulnerabilities2 + vulnerabilities
+            send_data_to_xsiam(data=all_vulns, vendor=VENDOR, product='vulnerabilities', data_type='assets')
+            #send_data_to_xsiam(data=vulnerabilities, vendor=VENDOR, product='vulnerabilities', data_type='assets')
+            demisto.setAssetsLastRun(last_run3)
 
             demisto.debug('finished fetch assets run')
         else:
