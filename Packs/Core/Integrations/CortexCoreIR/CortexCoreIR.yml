@@ -3093,7 +3093,14 @@ script:
     outputs:
     - contextPath: Core.TerminateCausality.action_id
       description: The action id.
-      type: String 
+      type: String
+  - arguments:
+    - description: asset UUID
+      name: asset_id
+      isArray: false
+      required: true  
+    name: core-get-asset-details
+    description: Get UAI asset info
   runonce: false
   script: '-'
   subtype: python3

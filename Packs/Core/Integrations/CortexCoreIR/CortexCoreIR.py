@@ -65,6 +65,12 @@ class Client(CoreClient):
         reply = self._http_request(method='POST', json_data={'request_data': request_data}, headers=self._headers,
                                    url_suffix='/analytics_apis/')
         return reply
+    
+    #TODO, pass in actual asset ID
+    def get_asset_details(self, asset_id):
+        reply = self._http_request(method='POST', json_data={"asset_id":"1f246ffd7c26a37edb925a4070f2a7bc443a2922816d93fa6288ad77b6112f38"}, headers=self._headers,
+                                   url_suffix='/unified-assets-inventory/get_asset/')
+        return reply
 
 
 def report_incorrect_wildfire_command(client: Client, args) -> CommandResults:
@@ -141,6 +147,18 @@ def handle_prevalence_command(client: Client, command: str, args: dict):
         raw_response=res,
     )
 
+#TODO, formatting of table
+def get_asset_details_command(client, args):
+    asset_id = args.get('asset_id')
+    response = client.get_asset_details(asset_id)
+    parsed = response.get('reply')
+    return CommandResults(
+        readable_output=parsed,
+        outputs_prefix='CoreAsset',
+        outputs=parsed,
+        raw_response=parsed,
+    )
+
 
 def main():  # pragma: no cover
     """
@@ -175,7 +193,12 @@ def main():  # pragma: no cover
             add_sensitive_log_strs(api_key)
     else:
         url = "/api/webapp/"
+    
     base_url = urljoin(url, url_suffix)
+    if command == "core-get-asset-details":
+        base_url = "/api/webapp/data-platform"
+    demisto.info(f'JW_TEST url: {base_url}')
+    demisto.debug(f'JW_TEST url: {base_url}')
     proxy = demisto.params().get('proxy')
     verify_cert = not demisto.params().get('insecure', False)
 
@@ -197,6 +220,9 @@ def main():  # pragma: no cover
             client.test_module()
             demisto.results('ok')
 
+        elif command == 'core-get-asset-details':
+            return_results(get_asset_details_command(client, args))
+        
         elif command == 'core-get-endpoints':
             return_results(get_endpoints_command(client, args))
 
